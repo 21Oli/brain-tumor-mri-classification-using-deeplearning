@@ -320,7 +320,7 @@ MODEL_PATH      = os.path.join(os.path.dirname(__file__), "models", "best_brain_
 REPORTS_DIR     = os.path.join(os.path.dirname(__file__), "reports")
 CLASS_NAMES     = ["Meningioma", "Glioma", "Pituitary Tumor"]
 IMG_SIZE        = 224
-LAST_CONV_LAYER = "conv2d_5"
+LAST_CONV_LAYER = "conv2d_2"
 
 CLASS_INFO = {
     "Meningioma": {
@@ -349,7 +349,15 @@ CLASS_INFO = {
 # ── Model ──────────────────────────────────────────────────────────────────────
 @st.cache_resource(show_spinner="Initialising model…")
 def load_model():
-    return tf.keras.models.load_model(MODEL_PATH)
+    m = tf.keras.models.load_model(MODEL_PATH)
+    # Auto-detect the last Conv2D layer name
+    last_conv = None
+    for layer in m.layers:
+        if isinstance(layer, tf.keras.layers.Conv2D):
+            last_conv = layer.name
+    if last_conv is None:
+        raise ValueError("No Conv2D layer found in the loaded model.")
+    return m, last_conv
 
 # ── Preprocessing ──────────────────────────────────────────────────────────────
 def preprocess_image(pil_image: Image.Image) -> np.ndarray:
@@ -482,7 +490,7 @@ if page == "Analysis":
         unsafe_allow_html=True,
     )
 
-    model = load_model()
+    model, last_conv_layer = load_model()
     uploaded = st.file_uploader(
         "Select a brain MRI image (PNG, JPG, TIFF)",
         type=["png", "jpg", "jpeg", "tiff", "tif"],
@@ -499,7 +507,7 @@ if page == "Analysis":
             confidence = float(probs[pred_idx])
 
         with st.spinner("Computing activation map…"):
-            heatmap, _ = make_gradcam_heatmap(tensor, model, LAST_CONV_LAYER)
+            heatmap, _ = make_gradcam_heatmap(tensor, model, last_conv_layer)
             gray_arr   = tensor[0, :, :, 0]
             overlay    = overlay_gradcam(gray_arr, heatmap)
 
@@ -718,7 +726,7 @@ elif page == "About":
             """
             Gradient-weighted Class Activation Mapping (Grad-CAM) backpropagates
             the gradient of the predicted class score through the final convolutional
-            layer (<code>conv2d_5</code>) to produce a spatial heatmap. Brighter
+            layer (<code>conv2d_2</code>) to produce a spatial heatmap. Brighter
             regions in the overlay correspond to areas the model found most
             discriminative for its prediction. This aids interpretability without
             modifying the underlying model.
