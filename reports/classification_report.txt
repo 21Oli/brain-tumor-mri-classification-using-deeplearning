@@ -1,0 +1,64 @@
+BRAIN TUMOR MRI CLASSIFICATION — FINAL TEST CLASSIFICATION REPORT
+==================================================================
+
+Dataset  : Brain Tumor Dataset (Cheng et al.)
+Model    : Custom CNN
+Input    : 224 × 224 × 1 (grayscale MRI)
+Classes  : meningioma (0), glioma (1), pituitary (2)
+Test set : 643 images (patient-level split, fold 5)
+
+------------------------------------------------------------------
+              precision    recall  f1-score   support
+
+  meningioma     0.4815    0.6265    0.5445       166
+      glioma     0.8505    0.5749    0.6861       287
+   pituitary     0.7983    0.9789    0.8794       190
+
+    accuracy                         0.7076       643
+   macro avg     0.7101    0.7268    0.7033       643
+weighted avg     0.7398    0.7076    0.7067       643
+
+------------------------------------------------------------------
+CONFUSION MATRIX (rows = actual, columns = predicted)
+
+                 meningioma   glioma   pituitary
+  meningioma        104         27        35
+  glioma            110        165        12
+  pituitary           2          2       186
+
+------------------------------------------------------------------
+PER-CLASS TEST PERFORMANCE
+
+  meningioma  : 104 / 166  (62.65%)
+  glioma      : 165 / 287  (57.49%)
+  pituitary   : 186 / 190  (97.89%)
+
+------------------------------------------------------------------
+OVERALL RESULTS
+
+  Test Loss               : 0.6284
+  Test Accuracy           : 70.76%
+  Best Validation Accuracy: 73.09%  (epoch 9)
+  Best Validation Loss    : 0.5320  (epoch 14)
+  Final Training Accuracy : 77.58%
+  Macro F1-Score          : 70.33%
+
+  Correct predictions     : 455 / 643
+  Incorrect predictions   : 188 / 643
+
+  Mean prediction confidence : 0.7494
+  Min  prediction confidence : 0.3792
+  Max  prediction confidence : 0.9947
+
+------------------------------------------------------------------
+TRAINING CONFIGURATION
+
+  Epochs completed : 19 (early stopping at epoch 19, best at 14)
+  Batch size       : 32
+  Optimizer        : Adam
+  Loss function    : Sparse Categorical Crossentropy
+  Class weights    : Enabled
+  Checkpoint       : best_brain_tumor_cnn.keras
+
+------------------------------------------------------------------
+NOTE: This is an educational system and NOT a clinical diagnostic tool.
