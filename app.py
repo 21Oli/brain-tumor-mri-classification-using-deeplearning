@@ -228,13 +228,7 @@ st.markdown(
         border-bottom: 1px solid #e2e0db;
     }
 
-    /* ── about section ── */
-    .about-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 24px;
-        margin-top: 8px;
-    }
+    /* ── about cards ── */
     .about-card {
         background: #fff;
         border: 1px solid #e2e0db;
@@ -635,91 +629,116 @@ elif page == "Reports":
 # PAGE — ABOUT
 # ══════════════════════════════════════════════════════════════════════════════
 elif page == "About":
+
+    def about_card(label, title, body_html):
+        """Render a single about card."""
+        st.markdown(
+            f"""
+            <div class="about-card">
+                <div class="about-card-label">{label}</div>
+                <div class="about-card-title">{title}</div>
+                <div class="about-card-body">{body_html}</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+    # Row 1
+    r1c1, r1c2 = st.columns(2, gap="large")
+
+    with r1c1:
+        about_card(
+            "The Project",
+            "What this tool does",
+            """
+            This application uses a custom convolutional neural network to classify
+            brain MRI scans into three tumor categories: Meningioma, Glioma, and
+            Pituitary Tumor. Alongside each classification, a Gradient-weighted Class
+            Activation Map (Grad-CAM) is generated to highlight the image regions that
+            most influenced the model's decision.
+            <div class="about-stat">
+                <div class="about-stat-item">
+                    <div class="about-stat-num">3,064</div>
+                    <div class="about-stat-desc">Training images</div>
+                </div>
+                <div class="about-stat-item">
+                    <div class="about-stat-num">233</div>
+                    <div class="about-stat-desc">Patients</div>
+                </div>
+                <div class="about-stat-item">
+                    <div class="about-stat-num">3</div>
+                    <div class="about-stat-desc">Tumor classes</div>
+                </div>
+            </div>
+            """,
+        )
+
+    with r1c2:
+        about_card(
+            "Dataset",
+            "Data source & split strategy",
+            """
+            The model was trained on a publicly available brain MRI dataset.
+            A strict <strong>patient-level split</strong> was applied — images from the
+            same patient appear in only one partition — to prevent data leakage and
+            ensure the evaluation reflects real-world generalisation.
+            <ul style="margin-top:12px">
+                <li>Images resized to 224 &times; 224 px (grayscale)</li>
+                <li>Per-image min-max normalisation to [0, 1]</li>
+                <li>Train / Validation / Test: 70 / 15 / 15 %</li>
+            </ul>
+            """,
+        )
+
+    st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
+
+    # Row 2
+    r2c1, r2c2 = st.columns(2, gap="large")
+
+    with r2c1:
+        about_card(
+            "Architecture",
+            "Model design",
+            """
+            The classifier is a custom CNN built from scratch — no pretrained weights.
+            <ul style="margin-top:12px">
+                <li>6 convolutional blocks with batch normalisation and max pooling</li>
+                <li>Global average pooling into two dense layers</li>
+                <li>Dropout for regularisation</li>
+                <li>Softmax output over 3 classes</li>
+                <li>Trained with Adam optimiser and early stopping (19 epochs)</li>
+            </ul>
+            """,
+        )
+
+    with r2c2:
+        about_card(
+            "Explainability",
+            "Grad-CAM visualisation",
+            """
+            Gradient-weighted Class Activation Mapping (Grad-CAM) backpropagates
+            the gradient of the predicted class score through the final convolutional
+            layer (<code>conv2d_5</code>) to produce a spatial heatmap. Brighter
+            regions in the overlay correspond to areas the model found most
+            discriminative for its prediction. This aids interpretability without
+            modifying the underlying model.
+            """,
+        )
+
+    st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
+
+    # Full-width disclaimer
     st.markdown(
         """
-        <div class="about-grid">
-
-            <div class="about-card">
-                <div class="about-card-label">The Project</div>
-                <div class="about-card-title">What this tool does</div>
-                <div class="about-card-body">
-                    This application uses a custom convolutional neural network to classify
-                    brain MRI scans into three tumor categories: Meningioma, Glioma, and
-                    Pituitary Tumor. Alongside each classification, a Gradient-weighted Class
-                    Activation Map (Grad-CAM) is generated to highlight the image regions that
-                    most influenced the model's decision.
-                    <div class="about-stat">
-                        <div class="about-stat-item">
-                            <div class="about-stat-num">3,064</div>
-                            <div class="about-stat-desc">Training images</div>
-                        </div>
-                        <div class="about-stat-item">
-                            <div class="about-stat-num">233</div>
-                            <div class="about-stat-desc">Patients</div>
-                        </div>
-                        <div class="about-stat-item">
-                            <div class="about-stat-num">3</div>
-                            <div class="about-stat-desc">Tumor classes</div>
-                        </div>
-                    </div>
-                </div>
+        <div class="about-card">
+            <div class="about-card-label">Disclaimer</div>
+            <div class="about-card-title">Research use only</div>
+            <div class="about-card-body">
+                This tool is developed strictly for educational and research purposes.
+                It has not been clinically validated and must not be used to inform,
+                support, or replace any medical diagnosis or treatment decision.
+                Always consult a qualified medical professional for clinical concerns.
             </div>
-
-            <div class="about-card">
-                <div class="about-card-label">Dataset</div>
-                <div class="about-card-title">Data source &amp; split strategy</div>
-                <div class="about-card-body">
-                    The model was trained on a publicly available brain MRI dataset.
-                    A strict <strong>patient-level split</strong> was applied — images from the
-                    same patient appear in only one partition — to prevent data leakage and
-                    ensure the evaluation reflects real-world generalisation.
-                    <ul style="margin-top:12px">
-                        <li>Images resized to 224 × 224 px (grayscale)</li>
-                        <li>Per-image min-max normalisation to [0, 1]</li>
-                        <li>Train / Validation / Test: 70 / 15 / 15 %</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="about-card">
-                <div class="about-card-label">Architecture</div>
-                <div class="about-card-title">Model design</div>
-                <div class="about-card-body">
-                    The classifier is a custom CNN built from scratch — no pretrained weights.
-                    <ul style="margin-top:12px">
-                        <li>6 convolutional blocks with batch normalisation and max pooling</li>
-                        <li>Global average pooling into two dense layers</li>
-                        <li>Dropout for regularisation</li>
-                        <li>Softmax output over 3 classes</li>
-                        <li>Trained with Adam optimiser and early stopping (19 epochs)</li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="about-card">
-                <div class="about-card-label">Explainability</div>
-                <div class="about-card-title">Grad-CAM visualisation</div>
-                <div class="about-card-body">
-                    Gradient-weighted Class Activation Mapping (Grad-CAM) backpropagates
-                    the gradient of the predicted class score through the final convolutional
-                    layer (<code>conv2d_5</code>) to produce a spatial heatmap. Brighter
-                    regions in the overlay correspond to areas the model found most
-                    discriminative for its prediction. This aids interpretability without
-                    modifying the underlying model.
-                </div>
-            </div>
-
-            <div class="about-card about-full-width">
-                <div class="about-card-label">Disclaimer</div>
-                <div class="about-card-title">Research use only</div>
-                <div class="about-card-body">
-                    This tool is developed strictly for educational and research purposes.
-                    It has not been clinically validated and must not be used to inform,
-                    support, or replace any medical diagnosis or treatment decision.
-                    Always consult a qualified medical professional for clinical concerns.
-                </div>
-            </div>
-
         </div>
         """,
         unsafe_allow_html=True,
