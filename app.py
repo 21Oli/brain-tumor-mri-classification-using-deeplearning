@@ -370,15 +370,27 @@ def preprocess_image(pil_image: Image.Image) -> np.ndarray:
 
 # ── Grad-CAM ───────────────────────────────────────────────────────────────────
 def make_gradcam_heatmap(image_4d: np.ndarray, model, last_conv_layer_name: str):
-    grad_model = tf.keras.models.Model(
-        inputs=model.inputs,
-        outputs=[model.get_layer(last_conv_layer_name).output, model.output],
-    )
+    # Build a Functional sub-model from a symbolic input so this works with
+    # Sequential models (which have no .output until called).
+    inp = tf.keras.Input(shape=image_4d.shape[1:])  # (224, 224, 1)
+    x   = inp
+    conv_out_tensor = None
+    for layer in model.layers:
+        x = layer(x)
+        if layer.name == last_conv_layer_name:
+            conv_out_tensor = x
+
+    if conv_out_tensor is None:
+        raise ValueError(f"Layer '{last_conv_layer_name}' not found in model.")
+
+    grad_model = tf.keras.Model(inputs=inp, outputs=[conv_out_tensor, x])
+
     tensor = tf.convert_to_tensor(image_4d, dtype=tf.float32)
     with tf.GradientTape() as tape:
         conv_out, preds = grad_model(tensor)
         pred_cls = tf.argmax(preds[0])
-        score = preds[:, pred_cls]
+        score    = preds[:, pred_cls]
+
     grads  = tape.gradient(score, conv_out)
     pooled = tf.reduce_mean(grads, axis=(0, 1, 2))
     hm     = tf.reduce_sum(conv_out[0] * pooled, axis=-1)
