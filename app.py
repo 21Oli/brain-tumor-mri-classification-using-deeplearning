@@ -264,16 +264,18 @@ with tab_reports:
     with c1:
         st.markdown("**Training vs Validation Accuracy**")
         p = os.path.join(REPORTS_DIR, "training_accuracy.png")
-        st.image(p, use_container_width=True) if os.path.exists(p) else st.warning(
-            "training_accuracy.png not found."
-        )
+        if os.path.exists(p):
+            st.image(p, use_container_width=True)
+        else:
+            st.warning("training_accuracy.png not found.")
 
     with c2:
         st.markdown("**Training vs Validation Loss**")
         p = os.path.join(REPORTS_DIR, "training_loss.png")
-        st.image(p, use_container_width=True) if os.path.exists(p) else st.warning(
-            "training_loss.png not found."
-        )
+        if os.path.exists(p):
+            st.image(p, use_container_width=True)
+        else:
+            st.warning("training_loss.png not found.")
 
     st.markdown("---")
     c3, c4 = st.columns(2)
@@ -281,16 +283,18 @@ with tab_reports:
     with c3:
         st.markdown("**Confusion Matrix (Test Set)**")
         p = os.path.join(REPORTS_DIR, "confusion_matrix.png")
-        st.image(p, use_container_width=True) if os.path.exists(p) else st.warning(
-            "confusion_matrix.png not found."
-        )
+        if os.path.exists(p):
+            st.image(p, use_container_width=True)
+        else:
+            st.warning("confusion_matrix.png not found.")
 
     with c4:
         st.markdown("**ROC-AUC Curves (One-vs-Rest)**")
         p = os.path.join(REPORTS_DIR, "roc_auc.png")
-        st.image(p, use_container_width=True) if os.path.exists(p) else st.warning(
-            "roc_auc.png not found."
-        )
+        if os.path.exists(p):
+            st.image(p, use_container_width=True)
+        else:
+            st.warning("roc_auc.png not found.")
 
     st.markdown("---")
     st.markdown("**Classification Report**")
